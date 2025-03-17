@@ -13,16 +13,16 @@ import (
 
 	"github.com/joho/godotenv"
 
-	_ "github.com/lib/pq" // PostgreSQL driver; imported for its side-effects.
+	_ "github.com/lib/pq" 
 )
 
-// Email represents an incoming email record.
+
 type Email struct {
-	ID         int       // Auto-generated primary key (from DB)
-	Username   string    // The local part (username) extracted from the recipient address.
-	Recipient  string    // The full recipient address.
-	RawData    string    // The raw, unparsed email content.
-	ReceivedAt time.Time // Timestamp when the email was received.
+	ID         int      
+	Username   string    
+	Recipient  string   
+	RawData    string    
+	ReceivedAt time.Time 
 }
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 }
 
 func main() {
-	// Connect to the Supabase database.
+	
 	db := connectDB()
 	// Start the cleanup job to purge emails older than 7 days.
 	go startCleanupJob(db)
@@ -45,29 +45,29 @@ func main() {
 	}
 	log.Println("Temporary Mail Service SMTP Server listening on port 2525")
 
-	// Accept connections in an infinite loop.
+	
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			log.Println("Error accepting connection:", err)
 			continue
 		}
-		// Handle each connection concurrently.
+		
 		go handleConnection(conn, db)
 	}
 }
 
-// handleConnection processes one SMTP connection.
+
 func handleConnection(conn net.Conn, db *sql.DB) {
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
 	writer := bufio.NewWriter(conn)
 
-	// Send initial SMTP greeting.
+	
 	writer.WriteString("220 Welcome to Temporary Mail Service\r\n")
 	writer.Flush()
 
-	var rcptTo string // To store the recipient address.
+	var rcptTo string 
 
 	// Process commands in a continuous loop.
 	for {
@@ -81,7 +81,7 @@ func handleConnection(conn net.Conn, db *sql.DB) {
 			return
 		}
 
-		// Normalize the command: trim spaces and convert to uppercase.
+		
 		input := strings.ToUpper(strings.TrimSpace(line))
 		log.Printf("Received: %s", input)
 
@@ -108,7 +108,7 @@ func handleConnection(conn net.Conn, db *sql.DB) {
 			writer.WriteString("354 End data with <CR><LF>.<CR><LF>\r\n")
 			writer.Flush()
 
-			// Read raw email data until a line with only a period is encountered.
+			
 			var dataLines []string
 			for {
 				dataLine, err := reader.ReadString('\n')
@@ -128,9 +128,9 @@ func handleConnection(conn net.Conn, db *sql.DB) {
 			log.Println("Received raw email data:")
 			log.Println(rawEmail)
 
-			// Extract username from recipient address (e.g. "username" from "username@mail.example.com").
+			
 			username := extractUsername(rcptTo)
-			// Create an Email record.
+			
 			emailRecord := Email{
 				Username:   username,
 				Recipient:  rcptTo,
@@ -155,7 +155,7 @@ func handleConnection(conn net.Conn, db *sql.DB) {
 	}
 }
 
-// extractUsername extracts the local part (username) from a recipient address.
+
 func extractUsername(rcpt string) string {
 	rcpt = strings.Trim(rcpt, "<>")
 	parts := strings.Split(rcpt, "@")
@@ -178,7 +178,7 @@ func connectDB() *sql.DB {
 	return db
 }
 
-// storeEmail inserts an Email record into the database.
+
 func storeEmail(db *sql.DB, email Email) error {
 	query := `
         INSERT INTO emails (username, recipient, raw_data, received_at)
@@ -188,7 +188,7 @@ func storeEmail(db *sql.DB, email Email) error {
 	return err
 }
 
-// startCleanupJob runs a background task that deletes emails older than 7 days.
+
 func startCleanupJob(db *sql.DB) {
 	ticker := time.NewTicker(1 * time.Hour) // Adjust cleanup frequency as needed.
 	go func() {

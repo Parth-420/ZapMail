@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hail",
+  title: "Zapmail",
   description: "A simple temp mail service",
 };
 
