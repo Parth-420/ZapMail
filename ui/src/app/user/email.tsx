@@ -90,7 +90,7 @@ const EmailPage = () => {
           </div>
           <div className="text-white flex gap-1 text-lg font-mono">
             <h1 className="font-semibold">From : </h1>
-            <h1>{email.mail_from}</h1>
+            <h1>{email.data.from}</h1>
           </div>
           <div className="text-white flex gap-1 text-lg font-mono">
             <h1 className="font-semibold">To : </h1>
