@@ -37,13 +37,17 @@ func main() {
 	db := connectDB()
 	// Start the cleanup job to purge emails older than 7 days.
 	go startCleanupJob(db)
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT environment variable not set")
+	}
 
-	// Start listening for incoming SMTP connections on port 2525.
-	ln, err := net.Listen("tcp", ":2525")
+	// Start listening for incoming SMTP 
+	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatal("Error starting server:", err)
 	}
-	log.Println("Temporary Mail Service SMTP Server listening on port 2525")
+	log.Println("Temporary Mail Service SMTP Server listening on port "+port)
 
 	
 	for {
